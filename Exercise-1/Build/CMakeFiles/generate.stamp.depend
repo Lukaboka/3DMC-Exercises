@@ -1,0 +1,27 @@
+# CMake generation dependency list for this directory.
+D:/CMake/share/cmake-3.26/Modules/CMakeCInformation.cmake
+D:/CMake/share/cmake-3.26/Modules/CMakeCXXInformation.cmake
+D:/CMake/share/cmake-3.26/Modules/CMakeCommonLanguageInclude.cmake
+D:/CMake/share/cmake-3.26/Modules/CMakeGenericSystem.cmake
+D:/CMake/share/cmake-3.26/Modules/CMakeInitializeConfigs.cmake
+D:/CMake/share/cmake-3.26/Modules/CMakeLanguageInformation.cmake
+D:/CMake/share/cmake-3.26/Modules/CMakeRCInformation.cmake
+D:/CMake/share/cmake-3.26/Modules/CMakeSystemSpecificInformation.cmake
+D:/CMake/share/cmake-3.26/Modules/CMakeSystemSpecificInitialize.cmake
+D:/CMake/share/cmake-3.26/Modules/Compiler/CMakeCommonCompilerMacros.cmake
+D:/CMake/share/cmake-3.26/Modules/Compiler/MSVC-C.cmake
+D:/CMake/share/cmake-3.26/Modules/Compiler/MSVC-CXX.cmake
+D:/CMake/share/cmake-3.26/Modules/Compiler/MSVC.cmake
+D:/CMake/share/cmake-3.26/Modules/Platform/Windows-MSVC-C.cmake
+D:/CMake/share/cmake-3.26/Modules/Platform/Windows-MSVC-CXX.cmake
+D:/CMake/share/cmake-3.26/Modules/Platform/Windows-MSVC.cmake
+D:/CMake/share/cmake-3.26/Modules/Platform/Windows.cmake
+D:/CMake/share/cmake-3.26/Modules/Platform/WindowsPaths.cmake
+D:/Uni/3DScanning&MotionCapture/Exercises/Exercise-1/Build/CMakeFiles/3.26.3/CMakeCCompiler.cmake
+D:/Uni/3DScanning&MotionCapture/Exercises/Exercise-1/Build/CMakeFiles/3.26.3/CMakeCXXCompiler.cmake
+D:/Uni/3DScanning&MotionCapture/Exercises/Exercise-1/Build/CMakeFiles/3.26.3/CMakeRCCompiler.cmake
+D:/Uni/3DScanning&MotionCapture/Exercises/Exercise-1/Build/CMakeFiles/3.26.3/CMakeSystem.cmake
+D:/Uni/3DScanning&MotionCapture/Exercises/Exercise-1/CMakeLists.txt
+D:/Uni/3DScanning&MotionCapture/Exercises/Libs/Eigen/share/eigen3/cmake/Eigen3Config.cmake
+D:/Uni/3DScanning&MotionCapture/Exercises/Libs/Eigen/share/eigen3/cmake/Eigen3ConfigVersion.cmake
+D:/Uni/3DScanning&MotionCapture/Exercises/Libs/Eigen/share/eigen3/cmake/Eigen3Targets.cmake

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\Uni\3DScanning&amp;MotionCapture\Exercises\Exercise-1\Build\CMakeFiles\0715d93c57c82130fb8f34c382609f6c\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{B1A12942-CF06-3C55-8115-9475B403B8B5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
