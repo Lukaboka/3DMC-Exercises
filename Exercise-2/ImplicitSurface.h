@@ -70,8 +70,7 @@ public:
 		Eigen::Vector3f n = m_pointcloud.GetNormals()[idx];
 
 		// TODO: implement the evaluation using Hoppe's method (see lecture slides)
-
-		return (x-p).dot(n);
+		return (x - p).dot(n);
 	}
 
 private:
@@ -271,6 +270,13 @@ public:
 		// hint: Eigen provides a norm() function to compute the l2-norm of a vector (e.g. see macro phi(i,j))
 		double result = 0.0;
 
+		for (unsigned int i = 0; i < m_numCenters; i++)
+		{
+			result += m_coefficents[i] * EvalBasis( (_x - m_funcSamp.m_pos[i]).norm() );
+		}
+
+		result += m_coefficents[m_numCenters] * _x[0] + m_coefficents[m_numCenters + 1] * _x[1] + m_coefficents[m_numCenters + 2] * _x[2] + m_coefficents[m_numCenters + 3];
+
 
 		return result;
 	}
@@ -298,7 +304,33 @@ private:
 		// similar you access the elements of the vector b, e.g. b(i) for the i-th element
 
 
+		//Fill A
+		unsigned int cols = A.cols();
+		for (unsigned int x = 0; x < A.rows(); x++) {
+			for (unsigned int y = 0; y < cols; y++) {
+				double value = 0.0;
 
+				//Fill on points
+				if (y < m_numCenters) {
+					A(x, y) = phi(x, y);
+					continue;
+				}
+
+				//Fill last column
+				if (y == cols - 1) {
+					A(x, y) = 1;
+					continue;
+				}
+
+				//Fill off points
+				A(x, y) = (m_funcSamp.m_pos[x])[y - m_numCenters];
+			}
+		}
+
+		//Fill B
+		for (unsigned int i = 0; i < b.size(); i++) {
+			b(i) = m_funcSamp.m_val[i];
+		}
 
 		// build the system matrix and the right hand side of the normal equation
 		m_systemMatrix = A.transpose() * A;
