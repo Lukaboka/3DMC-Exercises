@@ -113,7 +113,7 @@ public:
 
         auto poseIncrement = PoseIncrement<double>(pose);
         Vector3f predictedPoint;
-        poseIncrement.apply(&m_sourcePoint, &predictedPoint);
+        poseIncrement.apply(m_sourcePoint, predictedPoint);
 
         residuals[0] = predictedPoint[0] - m_targetPoint[0];
 		residuals[1] = predictedPoint[1] - m_targetPoint[1];
@@ -154,7 +154,7 @@ public:
 
         auto poseIncrement = PoseIncrement<double>(pose);
         Vector3f predictedPoint;
-        poseIncrement.apply(&m_sourcePoint, &predictedPoint);
+        poseIncrement.apply(m_sourcePoint, predictedPoint);
 
         residuals[0] = m_targetNormal.dot(predictedPoint - m_targetPoint);
 
@@ -245,7 +245,7 @@ protected:
                 // TODO: Invalidate the match (set it to -1) if the angle between the normals is greater than 60
                 if (acos(sourceNormal.dot(targetNormal) / (sourceNormal.norm() * targetNormal.norm())) > 60)
                 {
-                    match.weight = -1;
+                    match.idx = -1;
                 }
             }
         }
@@ -340,7 +340,12 @@ private:
 
                 // TODO: Create a new point-to-point cost function and add it as constraint (i.e. residual block) 
                 // to the Ceres problem.
-
+                problem.AddResidualBlock(
+                    new ceres::AutoDiffCostFunction<PointToPointConstraint, 3, 6>(
+                        new PointToPointConstraint(sourcePoint, targetPoint, match.weight)
+                    ), 
+                    nullptr, poseIncrement.getData()
+                );
 
                 if (m_bUsePointToPlaneConstraints) {
                     const auto& targetNormal = targetNormals[match.idx];
@@ -350,7 +355,12 @@ private:
 
                     // TODO: Create a new point-to-plane cost function and add it as constraint (i.e. residual block) 
                     // to the Ceres problem.
-
+                    problem.AddResidualBlock(
+                        new ceres::AutoDiffCostFunction<PointToPlaneConstraint, 1, 6>(
+                            new PointToPlaneConstraint(sourcePoint, targetPoint, targetNormal, match.weight)
+                        ),
+                        nullptr, poseIncrement.getData()
+                    );
 
                 }
             }
@@ -438,10 +448,42 @@ private:
             const auto& n = targetNormals[i];
 
             // TODO: Add the point-to-plane constraints to the system
-
+            A(i * 4, 0) = n.z() * s.y() - n.y() * s.z();
+            A(i * 4, 1) = n.x() * s.z() - n.z() * s.x();
+            A(i * 4, 2) = n.y() * s.x() - n.x() * s.y();
+            A(i * 4, 3) = n.x();
+            A(i * 4, 4) = n.y();
+            A(i * 4, 5) = n.z();
+            b(i * 4) = n.x() * d.x() + n.y() * d.y() + n.z() * d.z() - n.x() * s.x() - n.y() * s.y() - n.z() * s.z();
 
             // TODO: Add the point-to-point constraints to the system
 
+            // dx
+            A(i * 4 + 1, 0) = 0;
+            A(i * 4 + 1, 1) = s.z();
+            A(i * 4 + 1, 2) = -s.y();
+            A(i * 4 + 1, 3) = 1;
+            A(i * 4 + 1, 4) = 0;
+            A(i * 4 + 1, 5) = 0;
+            b(i * 4 + 1) = d.x() - s.x();
+
+            // dy
+            A(i * 4 + 2, 0) = -s.z();
+            A(i * 4 + 2, 1) = 0;
+            A(i * 4 + 2, 2) = s.x();
+            A(i * 4 + 2, 3) = 0;
+            A(i * 4 + 2, 4) = 1;
+            A(i * 4 + 2, 5) = 0;
+            b(i * 4 + 2) = d.y() - s.y();
+
+            //dz
+            A(i * 4 + 3, 0) = s.y();
+            A(i * 4 + 3, 1) = -s.x();
+            A(i * 4 + 3, 2) = 0;
+            A(i * 4 + 3, 3) = 0;
+            A(i * 4 + 3, 4) = 0;
+            A(i * 4 + 3, 5) = 1;
+            b(i * 4 + 3) = d.z() - s.z();
 
             //TODO: Optionally, apply a higher weight to point-to-plane correspondences
 
@@ -451,6 +493,21 @@ private:
         // TODO: Solve the system
         VectorXf x(6);
 
+        // compute singular value decomposition
+        JacobiSVD<MatrixXf> svd(A, ComputeFullU | ComputeFullV);
+
+        MatrixXf U = svd.matrixU();
+        MatrixXf V = svd.matrixV();
+        MatrixXf sigma = svd.singularValues().asDiagonal();
+
+        // inverse the singular values of sigma in A = U*sigma*V^T
+        MatrixXf sigma_plus = sigma.transpose().diagonal().inverse().asDiagonal();
+
+        // compute A^+ with A^+ = V*sigma^+*U^T
+        MatrixXf A_plus = V * sigma_plus * U.transpose();
+        
+        // compute x
+        x = A_plus * b;
 
         float alpha = x(0), beta = x(1), gamma = x(2);
 
