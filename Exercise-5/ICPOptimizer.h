@@ -111,13 +111,25 @@ public:
         // class.
         // Important: Ceres automatically squares the cost function.
 
-        auto poseIncrement = PoseIncrement<double>(pose);
-        Vector3f predictedPoint;
-        poseIncrement.apply(m_sourcePoint, predictedPoint);
+        //auto poseIncrement = new PoseIncrement<double>(pose);
 
-        residuals[0] = predictedPoint[0] - m_targetPoint[0];
-		residuals[1] = predictedPoint[1] - m_targetPoint[1];
-		residuals[2] = predictedPoint[2] - m_targetPoint[2];
+        PoseIncrement<T> poseIncrement(const_cast<T*>(pose));
+        T* sourcePoint = new T[3];
+        sourcePoint[0] = T(m_sourcePoint[0]);
+        sourcePoint[1] = T(m_sourcePoint[1]);
+        sourcePoint[2] = T(m_sourcePoint[2]);
+
+        T* predictedPoint = new T[3];
+        predictedPoint[0] = T(predictedPoint[0]);
+        predictedPoint[1] = T(predictedPoint[1]);
+        predictedPoint[2] = T(predictedPoint[2]);
+
+        poseIncrement.apply(sourcePoint, predictedPoint);
+
+        residuals[0] = T(m_weight) * (predictedPoint[0] - T(m_targetPoint[0]));
+        residuals[1] = T(m_weight) * (predictedPoint[1] - T(m_targetPoint[1]));
+        residuals[2] = T(m_weight) * (predictedPoint[2] - T(m_targetPoint[2]));
+
 
         return true;
     }
@@ -125,7 +137,7 @@ public:
     static ceres::CostFunction* create(const Vector3f& sourcePoint, const Vector3f& targetPoint, const float weight) {
         return new ceres::AutoDiffCostFunction<PointToPointConstraint, 3, 6>(
             new PointToPointConstraint(sourcePoint, targetPoint, weight)
-            );
+        );
     }
 
 protected:
@@ -152,19 +164,27 @@ public:
         // class.
         // Important: Ceres automatically squares the cost function.
 
-        auto poseIncrement = PoseIncrement<double>(pose);
-        Vector3f predictedPoint;
-        poseIncrement.apply(m_sourcePoint, predictedPoint);
+        PoseIncrement<T> poseIncrement(const_cast<T*>(pose));
 
-        residuals[0] = m_targetNormal.dot(predictedPoint - m_targetPoint);
+        T* sourcePoint = new T[3];
+        sourcePoint[0] = T(m_sourcePoint[0]);
+        sourcePoint[1] = T(m_sourcePoint[1]);
+        sourcePoint[2] = T(m_sourcePoint[2]);
 
+        T* predictedPoint = new T[3];
+
+        poseIncrement.apply(sourcePoint, predictedPoint);
+
+        Vector3f pred(predictedPoint[0]);
+
+        residuals[0] = T(m_targetNormal.dot(pred - m_targetPoint));
         return true;
     }
 
     static ceres::CostFunction* create(const Vector3f& sourcePoint, const Vector3f& targetPoint, const Vector3f& targetNormal, const float weight) {
         return new ceres::AutoDiffCostFunction<PointToPlaneConstraint, 1, 6>(
             new PointToPlaneConstraint(sourcePoint, targetPoint, targetNormal, weight)
-            );
+        );
     }
 
 protected:
@@ -343,7 +363,7 @@ private:
                 problem.AddResidualBlock(
                     new ceres::AutoDiffCostFunction<PointToPointConstraint, 3, 6>(
                         new PointToPointConstraint(sourcePoint, targetPoint, match.weight)
-                    ), 
+                    ),
                     nullptr, poseIncrement.getData()
                 );
 
@@ -505,7 +525,7 @@ private:
 
         // compute A^+ with A^+ = V*sigma^+*U^T
         MatrixXf A_plus = V * sigma_plus * U.transpose();
-        
+
         // compute x
         x = A_plus * b;
 
